@@ -22,7 +22,7 @@ from discord import Webhook, RequestsWebhookAdapter
 #   author            : youpi0214                                                                           #
 #   name              : PS5Bot                                                                              #
 #   version           : 3.0                                                                                 #
-#   last modification : 2020-12-27                                                                          #
+#   last modification : 2020-12-28                                                                          #
 #############################################################################################################
 
 
@@ -327,7 +327,7 @@ class BestBuy(WebSites):
 
 SERVER_WELCOME = '\U0001F3AE **PS5_BotChecker 3.0** \U0001F3AE\nWelcome everyone!!' \
                  ' I Was designed to monitor both the digital and the disk version PS5 stock.\n' \
-                 'I currently support Best Buy Canada, Amazon Canada, TheSource and EBGames.' \
+                 'I currently support Best Buy Canada, Amazon Canada(removed temporarily), TheSource and EBGames.' \
                  'Walmart support is still unstable for the moment.\n\nPS : follow https://twitter.com/lbabinz?s=21 ' \
                  'for optimal chances to secure a console. I work best on surprise drop.'
 
@@ -347,7 +347,8 @@ session = None
 def check_error_count(error_count, query_count):
     if error_count > 20 and error_count % 20 != 0:
         PS5_DISCORD_HOOK_BUG_REPORT.send(
-            '<Amazon query warning!> error margin exceeded : ' + error_count + ' errors\nQuery #' + query_count)
+            '<Amazon query warning!> error margin exceeded : ' + str(error_count) + ' errors\nQuery #' + str(
+                query_count))
 
 
 def scrapAmazon():
@@ -403,4 +404,4 @@ if __name__ == '__main__':
     PS5_DISCORD_HOOK.send(SERVER_START)
     time.sleep(3)
 
-    scrapAmazon()
+    # scrapAmazon()
