@@ -369,7 +369,6 @@ def scrapAmazon():
                 DIGIT_AMZ_RESULT = HTML_AMZ.html.xpath(Amazon.PATH)
             else:
                 DISK_AMZ_RESULT = HTML_AMZ.html.xpath(Amazon.PATH)
-            print(DIGIT_AMZ_RESULT, DISK_AMZ_RESULT)
             session.close()
             error_count = 0
             i += 1
