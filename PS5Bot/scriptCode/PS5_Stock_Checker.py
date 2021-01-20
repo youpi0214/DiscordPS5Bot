@@ -49,6 +49,7 @@ class PS5Urls(Enum):
 
 class WebSites(ABC, Thread):
     TIMEZONE = 'EST'
+    STOP_DATE = '2021-07-31'
     messageHead = 'PS5 available at '
     out_of_stock = ' PS5s currently went out of stock at '
     errorMessageHead = 'An error occurred '
@@ -87,23 +88,25 @@ class WebSites(ABC, Thread):
                 '%Y-%m-%d %H:%M:%S')) + ' ' + self.TIMEZONE + ' -- thread ' + self.name + ' - Attempt :',
                   self.tries)
 
-    def notif(self, message, messageType):
+    def notif(self, message, messageType=0):
         global PS5_DISCORD_HOOK_BUG_REPORT
         # alert me about a bug
-        PS5_DISCORD_HOOK_BUG_REPORT.send(message);
+        PS5_DISCORD_HOOK_BUG_REPORT.send(message)
 
     def publishAvailability(self, availability):
         global PS5_DISCORD_HOOK
 
         # send alert to every to everyone
-        PS5_DISCORD_HOOK.send(availability)
+        # PS5_DISCORD_HOOK.send(availability)
 
         # TODO for testing only (publishAvailability)
+        PS5_DISCORD_HOOK_BUG_REPORT.send(availability)
 
     def startWebsiteSpying(self):
         digitalInStock = False
         discInStock = False
-        while not digitalInStock or not discInStock:
+        while not str(datetime.now(tz=timezone('EST')).strftime(
+                '%Y-%m-%d %H:%M:%S')).__contains__(WebSites.STOP_DATE):
             try:
                 if isinstance(self, Amazon):
                     pass
@@ -290,7 +293,8 @@ class BestBuy(WebSites):
     def run(self) -> None:
         quantity_digital = 0
         quantity_disc = 0
-        while (quantity_digital < 1 or quantity_disc < 1):
+        while not str(datetime.now(tz=timezone('EST')).strftime(
+                '%Y-%m-%d %H:%M:%S')).__contains__(WebSites.STOP_DATE):
             try:
                 response_digital = requests.get(url=self.url_digit, headers=self.headers_digital)
                 response_digital_formatted = json.loads(response_digital.content.decode('utf-8-sig').encode('utf-8'))
@@ -308,8 +312,8 @@ class BestBuy(WebSites):
                     disc_model = self.DISC_NAME + ', Quantity : ' + str(
                         quantity_disc) + 'units' + '\nlink : ' + PS5Urls.BESTBUY_DISC.value if quantity_disc > 0 else ''
 
-                    message = str(
-                        datetime.now().strftime('%Y-%m-%d %H:%M:%S')) + ' ' + self.TIMEZONE + '\n\U0001F6A8**' + str(
+                    message = str(datetime.now(tz=timezone(self.TIMEZONE)).strftime(
+                        '%Y-%m-%d %H:%M:%S')) + ' ' + self.TIMEZONE + '\n\U0001F6A8**' + str(
                         self.messageHead) + self.retailer + '**\U0001F6A8\n' + digital_model + disc_model + '\n@everyone'
                     self.publishAvailability(message)
                     print(message)
@@ -336,7 +340,7 @@ SERVER_START = '**Happy to coninuing work for you all!\nServer up and running...
 # Discord info
 PS5_DISCORD_CHANNEL = 'https://discord.com/api/webhooks/792106841311150131/f-1Qu07gxa9X7ZoLZ3I8N29JoRUtQRtdZ_DjkTL4DHRFI0ZtBVEr02FB-45sJ-QmAzbj'
 PS5_DISCORD_HOOK = None
-PS5_DISCORD_BUG_REPORT_CHANNEL = 'https://discord.com/api/webhooks/792159555463151626/Lq4cpZbhVy4hmIoIotVppId6CCE0z3uu34AjH0PD1F3ZlTdP5Lbwq8jutBPhuXJ1GPPV'
+PS5_DISCORD_BUG_REPORT_CHANNEL = 'https://discord.com/api/webhooks/792164824481923093/rl19SPu12iYyaGslL4oJKMOjVEFzYfE9aAPDTMO2XN6UEzqoSA4gUQVokwGeSM-sbXq1'
 PS5_DISCORD_HOOK_BUG_REPORT = None
 
 DIGIT_AMZ_RESULT = ''
@@ -357,7 +361,8 @@ def scrapAmazon():
     error_count = 0
     global DIGIT_AMZ_RESULT
     global DISK_AMZ_RESULT
-    while True:
+    while not str(datetime.now(tz=timezone('EST')).strftime(
+            '%Y-%m-%d %H:%M:%S')).__contains__(WebSites.STOP_DATE):
         try:
             # Amazon query
             session = HTMLSession()
@@ -379,28 +384,56 @@ def scrapAmazon():
             session.close()
 
 
+class ThreadMonitor(Thread):
+    threads = None
+    wait_time = 60  # minutes
+    ALIVE_MESSAGE = ' query is alive ? '
+
+    def __init__(self, thread_list):
+        super().__init__()
+        self.threads = thread_list
+
+    def run(self) -> None:
+
+        while not str(datetime.now(tz=timezone('EST')).strftime(
+                '%Y-%m-%d %H:%M:%S')).__contains__(WebSites.STOP_DATE):
+            arg_message = '**' + str(datetime.now(tz=timezone('EST')).strftime(
+                '%Y-%m-%d %H:%M:%S')) + '**\n'
+            for t in self.threads:
+                arg_message += (t.name + self.ALIVE_MESSAGE + 'Yes\n' if t.is_alive() else 'No\n')
+
+            PS5_DISCORD_HOOK_BUG_REPORT.send(arg_message)
+            time.sleep(self.wait_time * 60)
+
+
 if __name__ == '__main__':
     # discord setup
     PS5_DISCORD_HOOK = Webhook.from_url(PS5_DISCORD_CHANNEL, adapter=RequestsWebhookAdapter())
     PS5_DISCORD_HOOK_BUG_REPORT = Webhook.from_url(PS5_DISCORD_BUG_REPORT_CHANNEL, adapter=RequestsWebhookAdapter())
 
     # welcomes subscribers
-    PS5_DISCORD_HOOK.send(SERVER_WELCOME)
+    # PS5_DISCORD_HOOK.send(SERVER_WELCOME)
+
+    # TODO for testing only (welcole)
+    PS5_DISCORD_HOOK_BUG_REPORT.send(SERVER_WELCOME)
 
     a = BestBuy(PS5Urls.BESTBUY_DIGITAL_REQUEST, PS5Urls.BESTBUY_DISC_REQUEST)
     b = LaSource(PS5Urls.LASOURCE_DIGITAL, PS5Urls.LASOURCE_DISC)
     c = EBGames(PS5Urls.EBGAMES_DIGITAL, PS5Urls.EBGAMES_DISC)
     d = Amazon(PS5Urls.AMAZON_DIGITAL, PS5Urls.AMAZON_DISC)
     e = Walmart(PS5Urls.WAL_AMZ, PS5Urls.WAL_AMZ)
+    threads = [a, b, c, d, e]
+    monitor = ThreadMonitor(thread_list=threads)
 
     a.start()
     b.start()
     c.start()
     d.start()
     e.start()
+    monitor.start()
 
     # signal server is running
-    PS5_DISCORD_HOOK.send(SERVER_START)
+    # PS5_DISCORD_HOOK.send(SERVER_START)
     time.sleep(3)
 
-    # scrapAmazon()
+    scrapAmazon()
