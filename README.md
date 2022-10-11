@@ -6,8 +6,8 @@ This script was made to check the stock of the PS5 console on some retailers web
 This works only for Canadian retailers                                                                 
 Number of retailers : 5                                                                                 
 Retailers supported as of now : 
--TheSource
--BestBuy Canada
--Amazon Canada
--Walmart Canada
--EB Games 
+- TheSource
+- BestBuy Canada
+- Amazon Canada
+- Walmart Canada
+- EB Games 
