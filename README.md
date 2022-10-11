@@ -1,3 +1,3 @@
 # DiscordPS5Bot
  
-Server Shut Down 08/2021
+Server Shut Down 08/2020
