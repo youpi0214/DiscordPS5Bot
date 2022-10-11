@@ -22,4 +22,4 @@ Libraries Used
 
 
 ## *Server Shut Down 08/2021*
-Only code source remains
+Only code source remains and haven't been maintained since then.
