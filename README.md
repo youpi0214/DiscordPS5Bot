@@ -1,6 +1,4 @@
 # DiscordPS5Bot
- 
-## *Server Shut Down 08/2021*
 
 This script was made to check the stock of the PS5 console on some retailers websites.                  
 This works only for Canadian retailers                                                                 
@@ -11,3 +9,5 @@ Retailers supported as of now :
 - Amazon Canada
 - Walmart Canada
 - EB Games 
+
+## *Server Shut Down 08/2021*
