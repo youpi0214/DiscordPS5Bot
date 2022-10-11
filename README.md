@@ -12,7 +12,7 @@ Retailers supported as of now :
 - EB Games 
 
 # Behavior
-check every set amount of time the availability of the stock in the supported retailers website.
+Checks every set amount of time the availability of the stock in the supported retailers website.
 When some stock is found, the user is notified through a Discord Webhook (webhook link needs to be changed in the code to use your own webhook, current one in the code was for my discord server). the message sent through the webhook contains The link to the product page and if possible the quantity of the available stock.
 
 Libraries Used
@@ -22,4 +22,4 @@ Libraries Used
 
 
 ## *Server Shut Down 08/2021*
-only code source remains
+Only code source remains
